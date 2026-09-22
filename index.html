@@ -3,343 +3,530 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kevin Ashton e a Internet das Coisas (IoT)</title>
+<title>Kevin Ashton | Internet das Coisas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f172a;
-    --bg2: #1e293b;
-    --card: #ffffff;
-    --primary: #38bdf8;
-    --accent: #fbbf24;
-    --text: #0f172a;
-    --muted: #64748b;
+    --bg: #04060f;
+    --panel: rgba(11, 15, 34, 0.72);
+    --panel-solid: #0b0f22;
+    --line: #1c2a55;
+    --cyan: #00e5ff;
+    --magenta: #ff2d95;
+    --violet: #8b5cf6;
+    --amber: #ffd166;
+    --text: #e6f1ff;
+    --dim: #8fa3d9;
+    --ok: #34f5a0;
+    --no: #ff4d6d;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html, body { height: 100%; }
   body {
-    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: "Rajdhani", "Segoe UI", sans-serif;
     background: var(--bg);
-    color: #e2e8f0;
-    line-height: 1.65;
+    color: var(--text);
+    overflow: hidden;
+    line-height: 1.6;
   }
-  .container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
 
+  /* ---------- fundo tecnologico ---------- */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(0,229,255,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,.05) 1px, transparent 1px);
+    background-size: 44px 44px;
+    animation: gridMove 14s linear infinite;
+    mask-image: radial-gradient(ellipse at center, #000 30%, transparent 78%);
+  }
+  @keyframes gridMove { from { background-position: 0 0; } to { background-position: 0 44px; } }
+  .orb { position: fixed; border-radius: 50%; filter: blur(90px); z-index: 0; pointer-events: none; opacity: .4; }
+  .orb-a { width: 480px; height: 480px; background: #00e5ff; top: -160px; left: -120px; animation: drift 18s ease-in-out infinite alternate; }
+  .orb-b { width: 560px; height: 560px; background: #7c3aed; bottom: -220px; right: -160px; animation: drift 22s ease-in-out infinite alternate-reverse; }
+  @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(60px,40px) scale(1.12); } }
+  .scanlines {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .5;
+    background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.03) 0 1px, transparent 1px 3px);
+  }
+
+  .hud { position: relative; z-index: 2; height: 100vh; display: flex; flex-direction: column; }
+
+  /* ---------- status bar top ---------- */
+  .statusbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 22px; font-family: "Share Tech Mono", monospace; font-size: .72rem;
+    color: var(--dim); border-bottom: 1px solid var(--line);
+    background: rgba(4,6,15,.6);
+  }
+  .statusbar b { color: var(--cyan); }
+  .pulse-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); margin-right: 6px; animation: pulse 1.6s infinite; vertical-align: middle; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(52,245,160,.6);} 50% { box-shadow: 0 0 0 6px rgba(52,245,160,0);} }
+
+  /* ---------- navegacao ---------- */
   nav {
-    background: rgba(15, 23, 42, 0.9);
-    backdrop-filter: blur(6px);
-    position: sticky; top: 0; z-index: 10;
-    border-bottom: 1px solid #334155;
+    display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+    padding: 10px 22px; border-bottom: 1px solid var(--line);
+    background: rgba(4,6,15,.7); backdrop-filter: blur(10px);
   }
-  nav .container { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 10px 20px; }
-  nav a {
-    color: #cbd5e1; text-decoration: none; font-size: 0.85rem;
-    padding: 6px 10px; border-radius: 6px; transition: 0.2s;
+  .logo {
+    font-family: "Orbitron", sans-serif; font-weight: 900; font-size: 1.05rem;
+    color: var(--cyan); letter-spacing: 2px; margin-right: 14px;
+    text-shadow: 0 0 12px rgba(0,229,255,.8);
   }
-  nav a:hover { background: var(--primary); color: #0f172a; }
-  .logo { font-weight: 700; color: var(--primary); margin-right: auto; font-size: 0.95rem; }
-
-  header {
-    background: radial-gradient(ellipse at top, #1e3a5f 0%, var(--bg) 70%);
-    text-align: center; padding: 90px 20px 60px;
+  .logo small { color: var(--dim); font-weight: 500; letter-spacing: 1px; }
+  nav button {
+    font-family: "Rajdhani", sans-serif; font-weight: 600; font-size: .8rem;
+    letter-spacing: .5px; color: var(--dim);
+    background: transparent; border: 1px solid transparent; cursor: pointer;
+    padding: 7px 11px; border-radius: 6px; transition: .25s; position: relative;
   }
-  header .tag { color: var(--accent); letter-spacing: 2px; text-transform: uppercase; font-size: 0.8rem; }
-  header h1 { font-size: clamp(2rem, 6vw, 3.4rem); margin: 14px 0 10px; color: #fff; }
-  header p { color: #94a3b8; max-width: 620px; margin: 0 auto; }
+  nav button:hover { color: var(--text); background: rgba(0,229,255,.07); border-color: rgba(0,229,255,.25); }
+  nav button.active {
+    color: #03121f; background: var(--cyan);
+    box-shadow: 0 0 16px rgba(0,229,255,.55);
+    font-weight: 700;
+  }
+  nav button .num { font-family: "Share Tech Mono", monospace; font-size: .68rem; color: var(--magenta); margin-right: 4px; }
+  nav button.active .num { color: #03121f; }
 
-  section { padding: 64px 0; }
-  section:nth-of-type(even) { background: var(--bg2); }
-  .kicker { color: var(--primary); text-transform: uppercase; letter-spacing: 2px; font-size: 0.75rem; font-weight: 700; }
-  h2 { font-size: 1.9rem; margin: 6px 0 20px; color: #fff; }
+  /* ---------- main / paginas ---------- */
+  main { position: relative; flex: 1; overflow: hidden; }
+  .page {
+    position: absolute; inset: 0; overflow-y: auto; display: none;
+    padding: 34px clamp(16px, 5vw, 64px) 60px;
+  }
+  .page.active { display: block; animation: pageIn .55s cubic-bezier(.22,.9,.25,1) both; }
+  .page.leaving { display: block; animation: pageOut .34s cubic-bezier(.6,-0.05,.3,1) both; }
+  @keyframes pageIn { from { opacity: 0; transform: translateY(26px) scale(.985); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
+  @keyframes pageOut { from { opacity: 1; transform: none; filter: blur(0); } to { opacity: 0; transform: translateY(-18px) scale(.99); filter: blur(6px); } }
+  .page::-webkit-scrollbar { width: 8px; }
+  .page::-webkit-scrollbar-thumb { background: #22315f; border-radius: 4px; }
 
-  .card { background: var(--card); color: var(--text); border-radius: 14px; padding: 24px; margin-bottom: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
-  .card h3 { color: var(--text); margin: 0 0 8px; font-size: 1.15rem; }
-  .card h3 span { color: var(--primary); margin-right: 8px; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  .kicker {
+    font-family: "Share Tech Mono", monospace; font-size: .72rem; letter-spacing: 3px;
+    color: var(--magenta); text-transform: uppercase; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .kicker::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--magenta), transparent); }
+  h2 {
+    font-family: "Orbitron", sans-serif; font-weight: 700;
+    font-size: clamp(1.5rem, 3.4vw, 2.2rem); margin-bottom: 22px;
+    text-transform: uppercase; letter-spacing: 1px;
+    text-shadow: 0 0 22px rgba(0,229,255,.35);
+  }
+
+  /* ---------- cartoes ---------- */
+  .card {
+    position: relative; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 24px; margin-bottom: 18px;
+    backdrop-filter: blur(8px);
+    transition: border-color .3s, box-shadow .3s;
+  }
+  .card:hover { border-color: rgba(0,229,255,.45); box-shadow: 0 0 24px rgba(0,229,255,.12); }
+  .card h3 { font-family: "Orbitron", sans-serif; font-weight: 700; font-size: 1rem; letter-spacing: .5px; margin-bottom: 10px; color: var(--cyan); text-transform: uppercase; }
+  .card h3 .num { color: var(--magenta); font-family: "Share Tech Mono", monospace; margin-right: 8px; }
   .card p { color: var(--text); }
   .card ul { padding-left: 22px; }
-  .card ul li { margin-bottom: 6px; }
+  .card ul li { margin-bottom: 8px; color: var(--text); }
+  .card li b, .card p b { color: var(--amber); }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
-  .stat { background: #111c33; border: 1px solid #334155; border-radius: 12px; padding: 18px; }
-  .stat b { display: block; font-size: 1.6rem; color: var(--accent); }
+  .mono { font-family: "Share Tech Mono", monospace; }
+  .hl { color: var(--cyan); }
+  .ok { color: var(--ok); font-weight: 700; }
+  .no { color: var(--no); font-weight: 700; }
 
+  /* ---------- hero ---------- */
+  .hero { text-align: center; padding: 46px 0 20px; position: relative; }
+  .hero .frame {
+    display: inline-block; font-family: "Share Tech Mono", monospace;
+    font-size: .72rem; color: var(--dim); letter-spacing: 3px;
+    border: 1px solid var(--line); padding: 6px 16px; border-radius: 999px;
+    background: rgba(11,15,34,.5); margin-bottom: 22px;
+  }
+  .hero .frame b { color: var(--cyan); }
+  h1 {
+    font-family: "Orbitron", sans-serif; font-weight: 900;
+    font-size: clamp(2rem, 5.5vw, 3.6rem);
+    line-height: 1.1; text-transform: uppercase; letter-spacing: 2px;
+    background: linear-gradient(100deg, var(--cyan), var(--violet) 55%, var(--magenta));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p { color: var(--dim); max-width: 640px; margin: 18px auto 0; font-size: 1.08rem; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 30px; }
+  .stat {
+    font-family: "Share Tech Mono", monospace; text-align: left;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px;
+    transition: .3s;
+  }
+  .stat:hover { border-color: var(--magenta); box-shadow: 0 0 18px rgba(255,45,149,.15); }
+  .stat b { display: block; font-size: 1.7rem; color: var(--cyan); text-shadow: 0 0 14px rgba(0,229,255,.6); }
+  .stat span { color: var(--dim); font-size: .8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ---------- carrossel de cards ---------- */
+  .carousel { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(280px, 1fr); gap: 16px; overflow-x: auto; padding: 6px 2px 16px; scroll-snap-type: x mandatory; }
+  .carousel::-webkit-scrollbar { height: 8px; }
+  .carousel::-webkit-scrollbar-thumb { background: #22315f; border-radius: 4px; }
+  .carousel .card { scroll-snap-align: center; min-height: 190px; }
+  .carousel-hint { font-family: "Share Tech Mono", monospace; font-size: .72rem; color: var(--dim); text-align: right; margin-bottom: 8px; }
+
+  /* ---------- timeline ---------- */
   .timeline { position: relative; padding-left: 26px; }
-  .timeline::before { content: ""; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 2px; background: var(--primary); }
-  .timeline-item { position: relative; margin-bottom: 22px; }
-  .timeline-item::before { content: ""; position: absolute; left: -26px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
-  .timeline-item b { color: var(--accent); }
+  .timeline::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(var(--cyan), var(--magenta)); box-shadow: 0 0 8px rgba(0,229,255,.5); }
+  .tl { position: relative; margin-bottom: 18px; font-size: 1rem; }
+  .tl::before { content: ""; position: absolute; left: -26px; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+  .tl b { color: var(--cyan); font-family: "Share Tech Mono", monospace; margin-right: 8px; }
 
-  blockquote { border-left: 4px solid var(--primary); background: #111c33; padding: 14px 18px; border-radius: 0 10px 10px 0; font-style: italic; color: #cbd5e1; margin: 18px 0; }
+  /* ---------- quote ---------- */
+  .quote {
+    border: 1px solid var(--line); border-left: 4px solid var(--violet);
+    background: rgba(139,92,246,.08); padding: 18px 20px; border-radius: 0 10px 10px 0;
+    font-style: italic; color: var(--text); margin: 18px 0; position: relative;
+  }
+  .quote::before { content: '"'; position: absolute; top: -14px; left: 8px; font-size: 3rem; color: var(--violet); font-family: serif; }
 
-  .figure { background: #0b1220; border: 1px solid #334155; border-radius: 14px; padding: 20px; text-align: center; }
-  .figure svg { max-width: 100%; height: auto; }
-  .figure figcaption { margin-top: 12px; color: #94a3b8; font-size: 0.85rem; }
+  /* ---------- vantagens / riscos ---------- */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .split { grid-template-columns: 1fr; } }
+  .split .card ul li::marker { color: var(--cyan); }
 
-  .ok { color: #16a34a; font-weight: 600; }
-  .no { color: #dc2626; font-weight: 600; }
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+  /* ---------- pergunta final ---------- */
+  .ask-panel { text-align: center; padding: 40px 24px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(160deg, rgba(0,229,255,.08), rgba(139,92,246,.08)); }
+  .ask-panel .ask { font-family: "Orbitron", sans-serif; font-weight: 700; font-size: clamp(1.2rem, 2.6vw, 1.8rem); line-height: 1.4; color: var(--text); max-width: 780px; margin: 14px auto; text-transform: uppercase; }
+  .ask-panel .ask em { color: var(--cyan); font-style: normal; }
+  .ask-hint { font-family: "Share Tech Mono", monospace; color: var(--dim); font-size: .82rem; margin-top: 12px; }
 
-  #pergunta { background: linear-gradient(135deg, #0c4a6e, #1e3a5f); text-align: center; }
-  #pergunta .ask { font-size: clamp(1.4rem, 3vw, 2rem); color: #fff; font-weight: 700; max-width: 760px; margin: 10px auto 6px; }
+  /* ---------- rodape ---------- */
+  footer { border-top: 1px solid var(--line); padding: 14px 22px; font-size: .82rem; color: var(--dim); background: rgba(4,6,15,.6); font-family: "Share Tech Mono", monospace; }
+  footer .members { color: var(--cyan); }
 
-  footer { background: #020617; color: #64748b; text-align: center; padding: 28px 20px; font-size: 0.85rem; }
+  /* ---------- dots de progresso ---------- */
+  .dots { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); z-index: 5; display: flex; flex-direction: column; gap: 10px; }
+  .dots button { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--line); background: transparent; cursor: pointer; transition: .25s; }
+  .dots button.on { background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+  @media (max-width: 900px) { .dots { display: none; } }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="container">
-    <span class="logo">IoT</span>
-    <a href="#intro">1. Introdução</a>
-    <a href="#conceitos">2. Conceitos</a>
-    <a href="#exemplos">3. Exemplos</a>
-    <a href="#demo">4. Demonstração</a>
-    <a href="#vantagens">5. Vantagens</a>
-    <a href="#pratica">6. Na prática</a>
-    <a href="#conclusao">7. Conclusão</a>
-    <a href="#pergunta">8. Pergunta</a>
-  </div>
-</nav>
+<div class="bg-grid"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<div class="scanlines"></div>
 
-<header>
-  <div class="container">
-    <h1>Kevin Ashton e o nascimento da Internet das Coisas</h1>
-    <p>Como uma apresentação de slides feita em 1999 deu nome a uma das tecnologias que mais transformam o mundo hoje.</p>
+<div class="hud">
+  <div class="statusbar">
+    <span><span class="pulse-dot"></span>SISTEMA ONLINE — AUTO-ID LAB / MIT · EST. 1999</span>
+    <span id="clock" class="mono">CONECTANDO...</span>
   </div>
-</header>
 
-<!-- 1. INTRODUÇÃO -->
-<section id="intro">
-  <div class="container">
-    <span class="kicker">Seção 1</span>
-    <h2>Introdução ao tema</h2>
-    <div class="card">
-      <p>Você ajusta a temperatura da casa pelo celular, acompanha os batimentos cardíacos pelo relógio e recebe no aplicativo o aviso de que sua encomenda foi entregue. Todos esses objetos — que parecem apenas "coisas" — estão conectados à internet, coletando dados e agindo sem depender de um humano para informá-los.</p>
-      <p style="margin-top:12px;">Esse fenômeno tem um nome: <b>Internet das Coisas</b> (em inglês, <i>Internet of Things</i>, ou <b>IoT</b>). E quem criou essa expressão foi <b>Kevin Ashton</b>, um pesquisador britânico, em 1999. Neste site você vai conhecer quem foi Kevin Ashton, como surgiu o termo, exemplos reais de IoT, suas vantagens e riscos, e uma situação prática de uso.</p>
-    </div>
-    <div class="grid">
-      <div class="stat"><b>1999</b>Ano em que Ashton criou o termo "Internet of Things"</div>
-      <div class="stat"><b>30+</b>Bilhões de dispositivos IoT estimados em uso hoje no mundo</div>
-      <div class="stat"><b>RFID</b>Tecnologia inicial que inspirou o conceito</div>
-    </div>
-  </div>
-</section>
+  <nav id="nav">
+    <span class="logo">IoT<span style="color:var(--magenta)">.</span><small>/kevin-ashton</small></span>
+    <button data-page="p1" class="active"><span class="num">01</span>INTRO</button>
+    <button data-page="p2"><span class="num">02</span>CONCEITOS</button>
+    <button data-page="p3"><span class="num">03</span>EXEMPLOS</button>
+    <button data-page="p4"><span class="num">04</span>DEMO</button>
+    <button data-page="p5"><span class="num">05</span>IMPACTOS</button>
+    <button data-page="p6"><span class="num">06</span>PRÁTICA</button>
+    <button data-page="p7"><span class="num">07</span>CONCLUSÃO</button>
+    <button data-page="p8"><span class="num">08</span>DEBATE</button>
+  </nav>
 
-<!-- 2. CONCEITOS PRINCIPAIS -->
-<section id="conceitos">
-  <div class="container">
-    <span class="kicker">Seção 2</span>
-    <h2>Conceitos principais</h2>
-    <div class="card">
-      <h3><span>01</span>Quem foi Kevin Ashton</h3>
-      <ul>
-        <li>Nascido em Birmingham, Inglaterra, em 1968; formado em Estudos Escandinavos na University College London (1990–1994).</li>
-        <li>Trabalhava na <b>Procter &amp; Gamble (P&amp;G)</b> como gerente de marca. Percebeu que um batom de tom específico vivia esgotado nas lojas — mas ninguém conseguia explicar onde os produtos estavam.</li>
-        <li>Descobriu que o problema era a <b>dependência de dados digitados por humanos</b>: código de barras e planilhas só mostravam quantidades, não a localização real dos itens.</li>
-        <li>Estudou a tecnologia <b>RFID</b> (Identificação por Radiofrequência) e imaginou colocar microchips sem fio nos produtos para que os computadores soubessem onde cada coisa estava — sem precisar de digitação manual.</li>
-        <li>Cofundou e dirigiu o <b>Auto-ID Center do MIT</b> (Instituto de Tecnologia de Massachusetts), que criou os padrões globais de RFID e sensores. É autor do livro <i>How to Fly a Horse</i> (2015).</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h3><span>02</span>Como surgiu a expressão "Internet das Coisas"</h3>
-      <p>Em <b>1999</b>, Ashton precisou apresentar sua ideia aos executivos da P&amp;G. Para atrair a atenção de líderes animados com a "internet", ele batizou a apresentação de PowerPoint de <b>"Internet of Things"</b>. A frase combinava a internet — a "rede de bits" — com as "coisas" do mundo físico e a ideia de que sensores poderiam unir os dois mundos.</p>
-      <blockquote>"No século XX, os computadores eram cérebros sem sentidos — só sabiam o que lhes contávamos. No século XXI, por causa da Internet das Coisas, os computadores podem sentir as coisas por si mesmos." — Kevin Ashton</blockquote>
-      <p>A ideia central da IoT: <b>computadores passam a coletar dados do mundo real por sensores, sem depender de digitação humana</b>. O termo só explodiu entre 2008 e 2009, impulsionado inclusive pela hashtag <b>#IoT</b> no Twitter.</p>
-    </div>
-    <div class="card">
-      <h3><span>03</span>Linha do tempo da IoT</h3>
-      <div class="timeline">
-        <div class="timeline-item"><b>1982</b> — Máquina de refrigerante da Universidade Carnegie Mellon conectada à rede, permitindo verificar remotamente se havia produtos gelados.</div>
-        <div class="timeline-item"><b>1990</b> — A "torradeira" da INTEROP: John Romkey conecta uma torradeira à internet, ligando-a por controle remoto de computador.</div>
-        <div class="timeline-item"><b>1999</b> — Kevin Ashton cunha o termo <i>Internet of Things</i> na apresentação da P&amp;G e funda o Auto-ID Center no MIT.</div>
-        <div class="timeline-item"><b>2008–2009</b> — Pela estimativa da Cisco, mais dispositivos conectados que pessoas no mundo; a hashtag #IoT populariza o termo.</div>
-        <div class="timeline-item"><b>Hoje</b> — Casas inteligentes, carros, cidades, indústria e saúde conectados em escala global.</div>
+  <main id="pages">
+
+    <!-- 1 INTRODUÇÃO -->
+    <section class="page active" id="p1">
+      <div class="wrap">
+        <div class="hero">
+          <span class="frame">PROTOCOLO <b>[1999]</b> · PESQUISADOR <b>KEVIN ASHTON</b> · P&amp;G → MIT</span>
+          <h1>O futuro nasce de uma pergunta simples</h1>
+          <p>Ajustar a casa pelo celular, monitorar batimentos pelo relógio, rastrear a encomenda em tempo real: tudo isso é a <b class="hl">Internet das Coisas</b> — o termo criado por <b class="hl">Kevin Ashton</b> em 1999 para conectar o mundo físico à rede.</p>
+        </div>
+        <div class="stats">
+          <div class="stat"><b>1999</b><span>o termo "Internet of Things" é criado</span></div>
+          <div class="stat"><b>30+ bi</b><span>dispositivos IoT em uso hoje</span></div>
+          <div class="stat"><b>RFID</b><span>tecnologia que inspirou o conceito</span></div>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- 3. EXEMPLOS REAIS -->
-<section id="exemplos">
-  <div class="container">
-    <span class="kicker">Seção 3</span>
-    <h2>Exemplos reais de IoT</h2>
-    <div class="grid">
-      <div class="card">
-        <h3><span>01</span>Casa inteligente (Smart Home)</h3>
-        <p>Assistentes como Alexa e Google Home, lâmpadas e termostatos (ex.: Nest) que aprendem seus hábitos, fechaduras e câmeras de segurança acessíveis pelo celular. Você chega em casa e a luz já acende na temperatura ideal.</p>
+    <!-- 2 CONCEITOS -->
+    <section class="page" id="p2">
+      <div class="wrap">
+        <div class="kicker">Seção 02 · Fundamentos</div>
+        <h2>Conceitos principais</h2>
+        <div class="card">
+          <h3><span class="num">01</span>Quem foi Kevin Ashton</h3>
+          <ul>
+            <li>Nascido em <b>Birmingham, Inglaterra (1968)</b>; formado em Estudos Escandinavos na University College London (1990–1994).</li>
+            <li>Gerente de marca na <b>Procter &amp; Gamble (P&amp;G)</b>: notou um batom sempre esgotado nas lojas — e ninguém sabia onde os produtos estavam.</li>
+            <li>O problema era a <b>dependência de dados digitados por humanos</b>: código de barras mostrava quantidades, não localizações.</li>
+            <li>Propôs microchips sem fio (<b>RFID</b>) nos produtos para o computador saber onde cada coisa estava, sem digitação manual.</li>
+            <li>Cofundou e dirigiu o <b>Auto-ID Center do MIT</b>, criando padrões globais de RFID e sensores. Autor de <i>How to Fly a Horse</i> (2015).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="num">02</span>Como surgiu a expressão "Internet das Coisas"</h3>
+          <p>Em <b>1999</b>, para convencer executivos da P&amp;G, Ashton batizou sua apresentação de PowerPoint de <b class="hl">"Internet of Things"</b>. Unia a internet — a "rede de bits" — às "coisas" do mundo físico.</p>
+          <div class="quote">No século XX, os computadores eram cérebros sem sentidos — só sabiam o que lhes contávamos. No século XXI, por causa da Internet das Coisas, os computadores podem sentir as coisas por si mesmos. <div class="mono" style="color:var(--violet); margin-top:8px;">— KEVIN ASHTON</div></div>
+          <p>Ideia central: <b>computadores coletam dados do mundo por sensores, sem depender de digitação humana</b>. O termo explodiu entre 2008 e 2009, impulsionado pela hashtag <b class="hl">#IoT</b> no Twitter.</p>
+        </div>
+        <div class="card">
+          <h3><span class="num">03</span>Linha do tempo</h3>
+          <div class="timeline">
+            <div class="tl"><b>1982</b> — Máquina de refrigerante da Carnegie Mellon conectada à rede para verificar remotamente se havia produtos gelados.</div>
+            <div class="tl"><b>1990</b> — A "torradeira" da INTEROP: John Romkey liga uma torradeira à internet por controle remoto.</div>
+            <div class="tl"><b>1999</b> — Kevin Ashton cunha o termo <i>Internet of Things</i> e funda o Auto-ID Center no MIT.</div>
+            <div class="tl"><b>2008-09</b> — Mais dispositivos conectados que pessoas no mundo; #IoT populariza o termo.</div>
+            <div class="tl"><b>HOJE</b> — Casas, cidades, indústria e saúde conectadas em escala global.</div>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h3><span>02</span>Saúde e Wearables</h3>
-        <p>Smartwatches (Apple Watch, Fitbit) monitoram batimentos cardíacos, sono e oxigenação do sangue, avisam sobre arritmias e compartilham dados com médicos. Há marcapassos conectados que enviam alertas automáticos.</p>
+    </section>
+
+    <!-- 3 EXEMPLOS -->
+    <section class="page" id="p3">
+      <div class="wrap">
+        <div class="kicker">Seção 03 · Aplicações</div>
+        <h2>Exemplos reais de IoT</h2>
+        <div class="carousel-hint mono">◄ ARRASTE PARA NAVEGAR ►</div>
+        <div class="carousel">
+          <div class="card">
+            <h3><span class="num">01</span>Casa inteligente</h3>
+            <p>Alexa e Google Home, lâmpadas e termostatos (Nest) que aprendem seus hábitos, fechaduras e câmeras de segurança acessíveis pelo celular.</p>
+          </div>
+          <div class="card">
+            <h3><span class="num">02</span>Saúde &amp; wearables</h3>
+            <p>Smartwatches monitoram batimentos, sono e oxigenação; alertam arritmias e enviam dados ao médico. Há marcapassos conectados que disparam alertas.</p>
+          </div>
+          <div class="card">
+            <h3><span class="num">03</span>Agricultura de precisão</h3>
+            <p>Sensores no solo medem umidade e nutrientes; drones e irrigação automática economizam água. Chips RFID rastreiam o gado — o sonho de Ashton.</p>
+          </div>
+          <div class="card">
+            <h3><span class="num">04</span>Cidades inteligentes</h3>
+            <p>Postes que acendem com presença, semáforos que ajustam o trânsito em tempo real e lixeiras que avisam quando estão cheias.</p>
+          </div>
+          <div class="card">
+            <h3><span class="num">05</span>Indústria &amp; logística</h3>
+            <p>Manutenção preditiva: máquinas avisam antes de falhar. Encomendas e caminhões rastreados via GPS — exatamente o caso de Ashton na P&amp;G.</p>
+          </div>
+          <div class="card">
+            <h3><span class="num">06</span>Carros conectados</h3>
+            <p>Localização, alertas de manutenção, atualizações remotas e frenagem automática — rumo aos veículos autônomos.</p>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h3><span>03</span>Agricultura de precisão</h3>
-        <p>Sensores no solo medem umidade e nutrientes; drones e irrigação automática economizam água e fertilizantes. Fazendas usam chips RFID para rastrear o gado, como Ashton imaginou para os produtos da P&amp;G.</p>
+    </section>
+
+    <!-- 4 DEMO -->
+    <section class="page" id="p4">
+      <div class="wrap">
+        <div class="kicker">Seção 04 · Visualização</div>
+        <h2>Fluxo da IoT</h2>
+        <div class="card" style="padding:14px;">
+          <svg viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;background:#070b1c;border-radius:10px;" role="img" aria-label="Diagrama da IoT">
+            <defs>
+              <linearGradient id="cloud" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#0891b2"/>
+              </linearGradient>
+              <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#ffd166"/>
+              </marker>
+            </defs>
+            <text x="400" y="30" text-anchor="middle" fill="#8fa3d9" font-size="11" font-family="monospace">ARQUITETURA IOT — SENSOR → NUVEM → USUÁRIO</text>
+
+            <line x1="110" y1="320" x2="330" y2="215" stroke="#ffd166" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5,4"/>
+            <line x1="310" y1="290" x2="360" y2="215" stroke="#ffd166" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5,4"/>
+            <line x1="690" y1="290" x2="470" y2="215" stroke="#ffd166" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5,4"/>
+            <line x1="400" y1="215" x2="400" y2="370" stroke="#00e5ff" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <g font-family="Rajdhani, sans-serif">
+              <ellipse cx="400" cy="165" rx="105" ry="42" fill="#00e5ff" opacity="0.18"/>
+              <ellipse cx="400" cy="172" rx="82" ry="34" fill="#00e5ff" opacity="0.5"/>
+              <text x="400" y="179" text-anchor="middle" fill="#03121f" font-size="18" font-weight="bold">INTERNET</text>
+            </g>
+
+            <g font-family="Rajdhani, sans-serif">
+              <rect x="40" y="330" width="150" height="70" rx="8" fill="#0b0f22" stroke="#00e5ff"/>
+              <text x="115" y="357" text-anchor="middle" fill="#e6f1ff" font-size="14" font-weight="600">Sensor de temperatura</text>
+              <text x="115" y="378" text-anchor="middle" fill="#8fa3d9" font-size="11">lâmpada inteligente</text>
+
+              <rect x="235" y="300" width="150" height="70" rx="8" fill="#0b0f22" stroke="#00e5ff"/>
+              <text x="310" y="327" text-anchor="middle" fill="#e6f1ff" font-size="14" font-weight="600">Sensor de presença</text>
+              <text x="310" y="348" text-anchor="middle" fill="#8fa3d9" font-size="11">segurança residencial</text>
+
+              <rect x="615" y="300" width="150" height="70" rx="8" fill="#0b0f22" stroke="#00e5ff"/>
+              <text x="690" y="327" text-anchor="middle" fill="#e6f1ff" font-size="14" font-weight="600">Sensores de saúde</text>
+              <text x="690" y="348" text-anchor="middle" fill="#8fa3d9" font-size="11">smartwatch</text>
+
+              <rect x="295" y="380" width="210" height="55" rx="8" fill="#ff2d95"/>
+              <text x="400" y="404" text-anchor="middle" fill="#1a0410" font-size="14" font-weight="bold">USUÁRIO · app / celular</text>
+              <text x="400" y="422" text-anchor="middle" fill="#3a0a20" font-size="11">analisa e controla</text>
+            </g>
+
+            <text x="400" y="448" text-anchor="middle" fill="#8fa3d9" font-size="11" font-family="monospace">SENSORES COLETAM O MUNDO REAL → INTERNET PROCESSA → USUÁRIO AGE</text>
+          </svg>
+        </div>
       </div>
-      <div class="card">
-        <h3><span>04</span>Cidades inteligentes</h3>
-        <p>Postes com sensores que acendem só com presença, semáforos que ajustam o trânsito em tempo real e contêineres de lixo que avisam quando estão cheios para otimizar a coleta.</p>
+    </section>
+
+    <!-- 5 IMPACTOS -->
+    <section class="page" id="p5">
+      <div class="wrap">
+        <div class="kicker">Seção 05 · Análise</div>
+        <h2>Vantagens e riscos</h2>
+        <div class="split">
+          <div class="card">
+            <h3 style="color:var(--ok)"><span class="num">+</span>Vantagens</h3>
+            <ul>
+              <li><span class="ok">Automação:</span> máquinas agem sozinhas, economizando tempo e mão de obra.</li>
+              <li><span class="ok">Dados reais:</span> decisões baseadas em informação em tempo real.</li>
+              <li><span class="ok">Eficiência:</span> menos desperdício de energia, água e recursos.</li>
+              <li><span class="ok">Monitoramento remoto:</span> saúde, segurança e máquinas à distância.</li>
+              <li><span class="ok">Preditividade:</span> prevenir falhas e riscos antes que aconteçam.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--no)"><span class="num">−</span>Possíveis problemas</h3>
+            <ul>
+              <li><span class="no">Privacidade:</span> dispositivos podem ser invadidos e dados vazados.</li>
+              <li><span class="no">Dependência da rede:</span> sem internet, sistemas param.</li>
+              <li><span class="no">Custo:</span> sensores, instalação e manutenção ainda são caros.</li>
+              <li><span class="no">Lixo eletrônico:</span> troca frequente gera milhões de toneladas de resíduos.</li>
+              <li><span class="no">Falta de padrões:</span> protocolos próprios dificultam a integração.</li>
+            </ul>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h3><span>05</span>Indústria (IIoT) e logística</h3>
-        <p>Fábricas com manutenção preditiva: máquinas avisam quando vão falhar antes de quebrar. Caminhões e encomendas com sensores GPS são rastreados em tempo real — exatamente o sonho de Ashton para a cadeia de suprimentos.</p>
+    </section>
+
+    <!-- 6 PRÁTICA -->
+    <section class="page" id="p6">
+      <div class="wrap">
+        <div class="kicker">Seção 06 · Caso de uso</div>
+        <h2>IoT na agricultura</h2>
+        <div class="card">
+          <p>Numa fazenda de soja, <b>sensores de umidade no solo</b> conectados à internet do campo (Wi-Fi rural / 4G·5G) alimentam um algoritmo que cruza os dados com a previsão do clima.</p>
+          <ul style="margin-top:12px;">
+            <li>Com o solo seco, o sistema <b>aciona a irrigação automaticamente</b>, mesmo à distância.</li>
+            <li>Pragas detectadas por câmeras com sensores <b>alertam o celular do agricultor</b> com a localização exata do talhão.</li>
+            <li>Drones fazem <b>mapeamento aéreo</b> e definem onde aplicar fertilizante, reduzindo custo e impacto ambiental.</li>
+          </ul>
+          <p style="margin-top:12px;"><b>Resultado:</b> até <b class="hl">30% de economia de água</b>, menos desperdício de insumos e decisões baseadas em dados — o futuro que Ashton previu para a cadeia de suprimentos, agora no campo.</p>
+        </div>
+        <div class="card">
+          <h3><span class="num">+</span>Extra: estacionamento inteligente</h3>
+          <p>Sensores nas vagas informam em um app quais estão livres, reduzindo trânsito e poluição. O modelo é o mesmo: <b class="hl">sentir → enviar → processar → agir</b>.</p>
+        </div>
       </div>
-      <div class="card">
-        <h3><span>06</span>Carros conectados</h3>
-        <p>Carros modernos enviam dados de localização, alertas de manutenção e atualizações via internet, além de apoiar sistemas de frenagem automática e, no futuro, carros autônomos.</p>
+    </section>
+
+    <!-- 7 CONCLUSÃO -->
+    <section class="page" id="p7">
+      <div class="wrap">
+        <div class="kicker">Seção 07 · Síntese</div>
+        <h2>Conclusão</h2>
+        <div class="card">
+          <p>Kevin Ashton não inventou os sensores nem a internet — mas teve uma ideia simples e poderosa: <b>se os computadores sentissem o mundo físico por si próprios, a informação seria mais precisa e as decisões melhores</b>. O nome dado a essa ideia em 1999 tornou-se uma das tecnologias mais importantes do século XXI.</p>
+          <p style="margin-top:12px;">A IoT está no nosso bolso, na nossa casa, na nossa saúde e nas cidades. Traz enorme eficiência e qualidade de vida, mas exige atenção a segurança, privacidade e lixo eletrônico. Grandes revoluções podem começar com uma pergunta simples: <b class="hl">"onde está o meu batom?"</b></p>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- 4. IMAGEM / DEMONSTRAÇÃO -->
-<section id="demo">
-  <div class="container">
-    <span class="kicker">Seção 4</span>
-    <h2>Demonstração: como a IoT funciona</h2>
-    <figure class="figure">
-      <svg viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama da Internet das Coisas: sensores enviam dados para a internet, que chegam até o usuário">
-        <defs>
-          <linearGradient id="cloud" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#38bdf8"/>
-            <stop offset="1" stop-color="#0284c7"/>
-          </linearGradient>
-          <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#0b1220"/>
-            <stop offset="1" stop-color="#111c33"/>
-          </linearGradient>
-        </defs>
-        <rect width="800" height="460" fill="url(#bg)" rx="14"/>
-
-        <g>
-          <ellipse cx="400" cy="160" rx="120" ry="46" fill="url(#cloud)" opacity="0.25"/>
-          <ellipse cx="350" cy="140" rx="70" ry="40" fill="url(#cloud)" opacity="0.35"/>
-          <ellipse cx="460" cy="145" rx="80" ry="42" fill="url(#cloud)" opacity="0.3"/>
-          <ellipse cx="400" cy="160" rx="90" ry="40" fill="url(#cloud)" opacity="0.5"/>
-          <text x="400" y="167" text-anchor="middle" fill="#0f172a" font-size="20" font-weight="bold" font-family="Segoe UI, sans-serif">INTERNET</text>
-          <text x="400" y="188" text-anchor="middle" fill="#0f3a5c" font-size="12" font-family="Segoe UI, sans-serif">(dados e comandos)</text>
-        </g>
-
-        <g font-family="Segoe UI, sans-serif">
-          <rect x="40" y="330" width="140" height="70" rx="10" fill="#1e293b" stroke="#38bdf8"/>
-          <text x="110" y="360" text-anchor="middle" fill="#fff" font-size="14">Sensor de temperatura</text>
-          <text x="110" y="382" text-anchor="middle" fill="#94a3b8" font-size="11">lâmpada inteligente</text>
-
-          <rect x="240" y="300" width="140" height="70" rx="10" fill="#1e293b" stroke="#38bdf8"/>
-          <text x="310" y="330" text-anchor="middle" fill="#fff" font-size="14">Sensor de presença</text>
-          <text x="310" y="352" text-anchor="middle" fill="#94a3b8" font-size="11">segurança residencial</text>
-
-          <rect x="620" y="300" width="140" height="70" rx="10" fill="#1e293b" stroke="#38bdf8"/>
-          <text x="690" y="330" text-anchor="middle" fill="#fff" font-size="14">Sensores de saúde</text>
-          <text x="690" y="352" text-anchor="middle" fill="#94a3b8" font-size="11">smartwatch</text>
-        </g>
-
-        <defs>
-          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0,0 L10,5 L0,10 z" fill="#fbbf24"/>
-          </marker>
-        </defs>
-        <line x1="110" y1="320" x2="330" y2="215" stroke="#fbbf24" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5,4"/>
-        <line x1="310" y1="290" x2="360" y2="215" stroke="#fbbf24" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5,4"/>
-        <line x1="690" y1="290" x2="470" y2="215" stroke="#fbbf24" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="5,4"/>
-        <text x="180" y="255" fill="#fbbf24" font-size="11" font-family="Segoe UI, sans-serif">dados</text>
-        <text x="560" y="245" fill="#fbbf24" font-size="11" font-family="Segoe UI, sans-serif">dados</text>
-
-        <g font-family="Segoe UI, sans-serif">
-          <rect x="300" y="380" width="200" height="55" rx="10" fill="#38bdf8"/>
-          <text x="400" y="404" text-anchor="middle" fill="#0f172a" font-size="14" font-weight="bold">Usuário (celular/app)</text>
-          <text x="400" y="422" text-anchor="middle" fill="#082f49" font-size="11">analisa e controla</text>
-        </g>
-        <line x1="400" y1="215" x2="400" y2="370" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
-
-        <text x="400" y="440" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="Segoe UI, sans-serif">Sensores coletam dados do mundo real → internet processa → usuário recebe informação e age</text>
-      </svg>
-      <figcaption>Figura 1 — Demonstração visual de como sensores (RFID, temperatura, GPS) conectam objeto e internet: o fluxo que Kevin Ashton imaginou em 1999.</figcaption>
-    </figure>
-  </div>
-</section>
-
-<!-- 5. VANTAGENS E PROBLEMAS -->
-<section id="vantagens">
-  <div class="container">
-    <span class="kicker">Seção 5</span>
-    <h2>Vantagens e possíveis problemas</h2>
-    <div class="two-col">
-      <div class="card">
-        <h3><span style="color:#16a34a">+</span>Vantagens</h3>
-        <ul>
-          <li><span class="ok">Automação:</span> máquinas agem sozinhas, economizando tempo e mão de obra.</li>
-          <li><span class="ok">Decisões baseadas em dados:</span> informações reais e em tempo real.</li>
-          <li><span class="ok">Eficiência e economia:</span> menos desperdício de energia, água e recursos.</li>
-          <li><span class="ok">Monitoramento remoto:</span> saúde, segurança e máquinas acompanhadas à distância.</li>
-          <li><span class="ok">Segurança preditiva:</span> prevenir falhas e riscos antes que aconteçam.</li>
-        </ul>
+    <!-- 8 PERGUNTA -->
+    <section class="page" id="p8">
+      <div class="wrap">
+        <div class="kicker">Seção 08 · Debate</div>
+        <h2>Pergunta à sala</h2>
+        <div class="ask-panel">
+          <span class="frame" style="margin-bottom:6px;">REFLEXÃO [?</span>
+          <p class="ask">Se a internet conectava <em>"páginas"</em> nos anos 1990 e hoje conecta <em>"coisas"</em> (IoT), o que virá depois? E qual objeto do seu dia a dia você conectaria à internet — e que risco aceitaria em troca?</p>
+          <p class="ask-hint">DESAFIO EXTRA ▸ liste quantos dispositivos conectados você usou hoje sem perceber que eram IoT.</p>
+        </div>
       </div>
-      <div class="card">
-        <h3><span style="color:#dc2626">−</span>Possíveis problemas</h3>
-        <ul>
-          <li><span class="no">Privacidade e segurança:</span> dispositivos podem ser invadidos e dados sensíveis vazados.</li>
-          <li><span class="no">Dependência da internet:</span> sem rede, muitos sistemas param de funcionar.</li>
-          <li><span class="no">Custo:</span> sensores, instalação e manutenção ainda são caros.</li>
-          <li><span class="no">Lixo eletrônico:</span> equipamentos trocados com frequência geram milhões de toneladas de resíduos.</li>
-          <li><span class="no">Padrões diferentes:</span> cada fabricante usa protocolos próprios, dificultando a integração.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- 6. SITUAÇÃO PRÁTICA -->
-<section id="pratica">
-  <div class="container">
-    <span class="kicker">Seção 6</span>
-    <h2>Situação prática: IoT na agricultura</h2>
-    <div class="card">
-      <p>Imagine uma fazenda de soja. Com IoT, um agricultor instala <b>sensores de umidade no solo</b> ligados à internet do campo (rede Wi-Fi rural ou 4G/5G). Um algoritmo recebe os dados e compara com o clima previsto.</p>
-      <ul style="margin-top:12px;">
-        <li>Quando o solo fica seco demais, o sistema <b>aciona automaticamente a irrigação</b>, mesmo longe da fazenda.</li>
-        <li>Se uma praga é detectada por câmeras com sensores, o sistema <b>alerta o celular do agricultor</b> com a localização exata do talhão afetado.</li>
-        <li>Drones fazem <b>mapeamento aéreo</b> e calculam onde aplicar fertilizante, reduzindo custo e impacto ambiental.</li>
-      </ul>
-      <p style="margin-top:12px;"><b>Resultado:</b> até <b>30% de economia de água</b>, menos desperdício de insumos, colheitas monitoradas em tempo real e decisões tomadas com dados — o mesmo potencial que Ashton previu para a cadeia de suprimentos, aplicado no campo.</p>
-    </div>
-    <div class="card">
-      <h3>Outra ideia rápida: estacionamento inteligente</h3>
-      <p>Sensores em vagas de rua informam em um aplicativo quais estão livres, evitando trânsito e poluição em busca de vaga. O modelo é o mesmo: <b>sentir → enviar → processar → agir</b>.</p>
-    </div>
-  </div>
-</section>
+  </main>
 
-<!-- 7. CONCLUSÃO -->
-<section id="conclusao">
-  <div class="container">
-    <span class="kicker">Seção 7</span>
-    <h2>Conclusão</h2>
-    <div class="card">
-      <p>Kevin Ashton não inventou os sensores nem a internet — mas teve uma ideia simples e poderosa: <b>se os computadores pudessem sentir o mundo físico por si próprios, a informação seria mais precisa e as decisões melhores</b>. O nome que ele deu a essa ideia em 1999, "Internet das Coisas", virou uma das tecnologias mais importantes do século XXI.</p>
-      <p style="margin-top:12px;">A IoT já está no nosso bolso (no smartphone), na nossa casa, na nossa saúde e nas cidades. Seu futuro traz enormes benefícios em eficiência e qualidade de vida, mas também cobra atenção a problemas como segurança, privacidade e lixo eletrônico. Entender quem criou o termo e como ele surgiu é entender que grandes revoluções podem começar com uma pergunta simples: "onde está o meu batom?"</p>
-    </div>
-  </div>
-</section>
+  <footer>
+    Site educativo sobre Kevin Ashton e a origem da Internet das Coisas. Fontes: Kevin Ashton (1999/2009), Auto-ID Center (MIT), RFID Journal, Smithsonian e Avnet.
+    <div class="members" style="margin-top:6px;">TRABALHO POR ▸ KELVIN ROSENDO · PEDRO BERNARDES · PEDRO MANOEL · VINICIUS AUGUSTO</div>
+  </footer>
 
-<!-- 8. PERGUNTA PARA A SALA -->
-<section id="pergunta">
-  <div class="container">
-    <span class="kicker">Seção 8</span>
-    <h2>Pergunta para a sala</h2>
-    <p class="ask">Se nos anos 1990 a internet conectava "páginas" e hoje conecta "coisas" (IoT), o que você acha que virá depois? E qual objeto do seu dia a dia você gostaria que fosse conectado à internet para facilitar sua vida — e que risco você aceitaria em troca?</p>
-    <p style="color:#bae6fd; margin-top:14px;">Desafio extra: tente listar quantos dispositivos conectados você usou hoje sem perceber que eram IoT.</p>
-  </div>
-</section>
+  <div class="dots" id="dots"></div>
+</div>
 
-<footer>
-  <div class="container">
-    <p>Site educativo sobre Kevin Ashton e a origem do termo "Internet das Coisas".</p>
-    <p>Fontes: Kevin Ashton (1999/2009), arquivo do Auto-ID Center (MIT), RFID Journal, entrevistas publicadas em Smithsonian e Avnet. Número de dispositivos: estimativas de mercado (IoT Analytics / Statista).</p>
-    <p style="margin-top:10px;">Trabalho desenvolvido por: Kelvin Rosendo, Pedro Bernardes, Pedro Manoel e Vinicius Augusto.</p>
-  </div>
-</footer>
+<script>
+  (function () {
+    var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
+    var buttons = Array.prototype.slice.call(document.querySelectorAll('nav button'));
+    var current = 'p1';
+    var busy = false;
 
+    var labels = { p1:'INTRO', p2:'CONCEITOS', p3:'EXEMPLOS', p4:'DEMO', p5:'IMPACTOS', p6:'PRÁTICA', p7:'CONCLUSÃO', p8:'DEBATE' };
+    var dotsBox = document.getElementById('dots');
+    pages.forEach(function (p) {
+      var d = document.createElement('button');
+      d.title = labels[p.id];
+      if (p.id === current) d.className = 'on';
+      d.addEventListener('click', function () { go(p.id); });
+      dotsBox.appendChild(d);
+    });
+    var dots = Array.prototype.slice.call(dotsBox.children);
+
+    function updateUi(id) {
+      buttons.forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-page') === id); });
+      dots.forEach(function (d, i) { d.classList.toggle('on', pages[i].id === id); });
+      var el = document.getElementById('pages');
+      el.scrollTop = 0;
+    }
+
+    function go(id) {
+      if (busy || id === current) return;
+      busy = true;
+      var prev = document.getElementById(current);
+      var next = document.getElementById(id);
+      prev.classList.add('leaving');
+      setTimeout(function () {
+        prev.classList.remove('active', 'leaving');
+        next.classList.add('active');
+        next.scrollTop = 0;
+        current = id;
+        updateUi(id);
+        busy = false;
+      }, 330);
+    }
+
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { go(b.getAttribute('data-page')); });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      var idx = pages.findIndex(function (p) { return p.id === current; });
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+        if (idx < pages.length - 1) go(pages[idx + 1].id);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        if (idx > 0) go(pages[idx - 1].id);
+      }
+    });
+
+    var clock = document.getElementById('clock');
+    function tick() {
+      var now = new Date();
+      var h = String(now.getHours()).padStart(2, '0');
+      var m = String(now.getMinutes()).padStart(2, '0');
+      var s = String(now.getSeconds()).padStart(2, '0');
+      clock.textContent = 'T+' + h + ':' + m + ':' + s + ' // SENSORES ONLINE';
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+</script>
 </body>
 </html>
